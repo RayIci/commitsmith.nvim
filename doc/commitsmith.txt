@@ -117,6 +117,12 @@ wiped. `codex` emits no incremental output, so its replies arrive whole.
 `generate()`, `chat()`, `harness()`, `model(name?)`, `lean()`, `stop()`,
 `clear()`, `accept()` mirror the subcommands, for keymaps.
 
+`fallback_prompt()`                         *commitsmith.fallback_prompt()*
+    The prompt `generate` hands to `on_fallback`: the shared Conventional
+    Commits rules plus an instruction to read the staged diff with
+    `git diff --staged`. Use it to send the same request to an interactive
+    agent from your own mappings.
+
 ==============================================================================
 7. SETTINGS                                      *commitsmith-settings*
 

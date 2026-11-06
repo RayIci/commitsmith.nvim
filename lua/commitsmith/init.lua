@@ -172,6 +172,14 @@ end
 M.generate = generate
 M.harness = select_harness
 
+---The prompt `generate` hands to `on_fallback`: the shared Conventional
+---Commits rules plus an instruction to read the staged diff, for hosts that
+---send it to an interactive agent themselves.
+---@return string
+function M.fallback_prompt()
+  return prompt.fallback()
+end
+
 ---@param name string?
 function M.model(name)
   select_model(name or settings.harness())

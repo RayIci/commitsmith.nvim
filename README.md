@@ -43,6 +43,8 @@ vim.keymap.set("n", "<leader>aM", commitsmith.harness, { desc = "Configure commi
 ```
 
 `setup()` maps no keys. See `:help commitsmith` for every option.
+`require("commitsmith").fallback_prompt()` returns the prompt `on_fallback` receives, for
+sending the same request to an interactive agent yourself.
 
 ## Usage
 
