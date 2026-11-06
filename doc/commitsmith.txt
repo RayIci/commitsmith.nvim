@@ -1,0 +1,127 @@
+*commitsmith.txt*    AI commit messages, refined in conversation
+
+                                                    *commitsmith*
+
+commitsmith writes a Conventional Commits message for the staged changes from
+inside the `gitcommit` buffer, using an agent CLI (Claude Code, Codex or
+GitHub Copilot CLI) in headless mode, and lets you refine it in a short
+conversation until it is right. Each revision replaces the message in the
+commit buffer.
+
+==============================================================================
+CONTENTS                                         *commitsmith-contents*
+
+    1. Requirements ...................... |commitsmith-requirements|
+    2. Setup ............................. |commitsmith-setup|
+    3. Options ........................... |commitsmith-options|
+    4. Command ........................... |:Commitsmith|
+    5. Conversation window ............... |commitsmith-window|
+    6. Lua API ........................... |commitsmith-api|
+    7. Settings .......................... |commitsmith-settings|
+
+==============================================================================
+1. REQUIREMENTS                              *commitsmith-requirements*
+
+- Neovim 0.12 or newer, and `git` on `PATH`.
+- At least one agent CLI on `PATH`: `claude`, `codex` or `copilot`.
+- No other plugins.
+
+==============================================================================
+2. SETUP                                            *commitsmith-setup*
+
+>lua
+    require("commitsmith").setup({
+      -- Outside a gitcommit buffer, hand the prompt to an interactive agent.
+      on_fallback = function(prompt)
+        require("sidekick.cli").send({ prompt = prompt })
+      end,
+    })
+
+    vim.keymap.set("n", "<leader>am", require("commitsmith").generate)
+<
+`setup()` registers |:Commitsmith| and maps no keys.
+
+==============================================================================
+3. OPTIONS                                        *commitsmith-options*
+
+`harness`        (default `"copilot"`)
+    Harness used until one is picked with `:Commitsmith harness`.
+
+`models`         (default `{}`)
+    Per-harness model list overrides, e.g.
+    `{ claude = { { id = "opus", label = "Opus" } } }`. A free-text entry is
+    always appended so any model id stays reachable.
+
+`output`         (default `"stream"`)
+    `"stream"` renders replies as they arrive, `"batch"` once complete.
+
+`conversation`   (default `"auto"`)
+    How follow-up turns carry context. `"replay"` always resends the diff,
+    the current message and the instruction. `"session"` and `"auto"` resume
+    the harness session when there is one (and replay when there is not);
+    when resuming fails, `"auto"` falls back to a replay and `"session"`
+    reports the failure.
+
+`apply`          (default `"auto"`)
+    `"auto"` writes every completed revision to the commit buffer;
+    `"manual"` waits for `:Commitsmith accept`.
+
+`window`         (default `{ layout = "right", width = 84, height = 20,`
+                 `border = "rounded" }`)
+    Conversation window layout: `"right"`, `"left"`, `"bottom"`, `"top"` or
+    `"float"`.
+
+`on_fallback`    (default `nil`)
+    `fun(prompt: string)` called by `generate` outside a `gitcommit` buffer
+    with a prompt that tells the agent to read the staged diff itself.
+    Without it, `generate` reports that a commit buffer is required.
+
+==============================================================================
+4. COMMAND                                                *:Commitsmith*
+
+:Commitsmith [subcommand]
+
+    `generate`  Read the staged diff and write a message into the commit
+              buffer (the default subcommand). Outside a `gitcommit` buffer
+              it calls `on_fallback` instead.
+    `chat`      Toggle the conversation window.
+    `harness`   Pick the agent CLI, then a model for it.
+    `model`     Pick a model for the current harness, or type a custom id.
+    `lean`      Toggle invoking the harness with no tools and no MCP servers.
+    `stop`      Cancel an in-flight generation.
+    `clear`     Empty the conversation and start over.
+    `accept`    Write the latest revision to the buffer (`apply = "manual"`).
+
+All but `generate`, `harness`, `model` and `lean` need a `gitcommit` buffer.
+A persisted harness that is not installed is an error naming it; no other
+harness and no fallback is used in its place.
+
+==============================================================================
+5. CONVERSATION WINDOW                             *commitsmith-window*
+
+    `i`        type a refinement
+    `s`/`d`/`t`  canned refinements: shorter, more detail, fix type/scope
+    `r`        regenerate from scratch
+    `<Tab>`    expand or collapse the staged diff
+    `a`        accept the latest revision
+    `x`        stop the generation
+    `c`        clear the conversation
+    `q`        close the window
+
+The conversation belongs to its commit buffer and ends when that buffer is
+wiped. `codex` emits no incremental output, so its replies arrive whole.
+
+==============================================================================
+6. LUA API                                            *commitsmith-api*
+
+`generate()`, `chat()`, `harness()`, `model(name?)`, `lean()`, `stop()`,
+`clear()`, `accept()` mirror the subcommands, for keymaps.
+
+==============================================================================
+7. SETTINGS                                      *commitsmith-settings*
+
+The harness, its model and the lean flag are global and persisted to
+`stdpath("data")/commitsmith/settings.json`. The file is re-read on every
+access, so several Neovim instances stay in step.
+
+ vim:tw=78:ts=8:ft=help:norl:
