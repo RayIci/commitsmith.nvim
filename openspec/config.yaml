@@ -1,0 +1,47 @@
+schema: spec-driven
+githubCopilot:
+  cloudAgent: false
+
+context: |
+  commitsmith.nvim: a Neovim plugin (Lua, Neovim >= 0.12) that writes Conventional
+  Commits messages for the staged changes from inside the gitcommit buffer through
+  an agent CLI (claude, codex, copilot) in headless mode, and refines them in a
+  conversation window. Dependencies: Neovim, git and the chosen agent CLI only; no
+  other plugins. The plugin registers no keymaps; hosts wire keys and the
+  on_fallback callback themselves.
+  Behaviour contract: openspec/specs/commit-message-ai/spec.md.
+  Code: lua/commitsmith/; user docs in README.md and doc/commitsmith.txt
+  (:help commitsmith). Keep both in step with behaviour.
+  Tests: headless, no framework: `make test` (nvim --headless -u NONE -l tests/run.lua).
+  Also `make fmt-check` (stylua); modules carry LuaCATS annotations.
+
+# Project context (optional)
+# Add only constraints that should guide OpenSpec artifacts and workflows.
+# Include constraints an agent cannot infer by reading the code.
+# Keep general project documentation and discoverable codebase facts out.
+# Example:
+#   context: |
+#     Designs and tasks must cover Windows, macOS, and Linux
+#     Write all artifacts in Spanish
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
