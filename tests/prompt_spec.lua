@@ -1,0 +1,25 @@
+describe("prompts", function()
+  it("carry the same Conventional Commits rules", function()
+    local prompt = require("commitsmith.prompt")
+    local rules = prompt.rules()
+    ok(prompt.initial("diff --git a/x b/x", nil):find(rules, 1, true), "headless prompt has the rules")
+    ok(prompt.fallback():find(rules, 1, true), "fallback prompt has the rules")
+    ok(prompt.replay("diff", "feat: x", "shorter"):find(rules, 1, true), "replay prompt has the rules")
+  end)
+
+  it("fallback asks the agent to read the staged diff itself", function()
+    local text = require("commitsmith").fallback_prompt()
+    ok(text:find("git diff --staged", 1, true), text)
+    ok(not text:find("Staged diff:", 1, true), "no inlined diff")
+    eq(require("commitsmith.prompt").fallback(), text)
+  end)
+
+  it("includes an existing draft to revise", function()
+    local text = require("commitsmith.prompt").initial("diff", "fix: typo")
+    ok(text:find("fix: typo", 1, true), text)
+    eq(
+      require("commitsmith.prompt").initial("diff", "  "),
+      require("commitsmith.prompt").initial("diff", nil)
+    )
+  end)
+end)
