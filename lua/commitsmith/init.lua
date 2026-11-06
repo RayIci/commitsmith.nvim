@@ -145,7 +145,6 @@ local names = { "generate", "chat", "harness", "model", "lean", "stop", "clear",
 ---@param opts CommitsmithOpts?
 function M.setup(opts)
   config.setup(opts)
-  settings.seed()
 
   vim.api.nvim_create_user_command("Commitsmith", function(args)
     local name = args.fargs[1] or "generate"
